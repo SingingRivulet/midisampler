@@ -28,6 +28,20 @@ namespace mgnr{
             callback->func(n);
         },&callback);
     }
+    template<typename T>
+    inline void fetch(T & self,double beat,const std::function<void(note*)> & callback_func){
+        int begin_tick = self.TPQ*beat;
+        struct callback_t{
+            std::function<void(note*)> func;
+            int begin_tick;
+        }callback;
+        callback.begin_tick = begin_tick;
+        callback.func = callback_func;
+        self.find(begin_tick,[](note * n,void * arg){
+            callback_t * callback = (callback_t*)arg;
+            callback->func(n);
+        },&callback);
+    }
     //采样一个音符
     template<typename T>
     inline int sample(T & self,double beat,double len,int base,const std::function<bool(note*)> & filter){
@@ -44,7 +58,7 @@ namespace mgnr{
     inline std::set<int> sampleChord(T & self,double beat,double len,int base,const std::function<bool(note*)> & filter){
         std::set<int> res;
         //std::cout<<"sampleChord"<<beat<<" "<<len<<std::endl;
-        fetch(self,beat+0.5,len-1,[&](note * n){
+        fetch(self,beat+len/2,[&](note * n){
             if(filter(n)){
                 int resval = n->tone-base;
                 res.insert(resval);
