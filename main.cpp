@@ -25,6 +25,23 @@ int main(int argc, char** argv){
     mgnr::midiMap midiMap;
     mgnr::loadMidi(midiMap,input);
     midiMap.updateTimeMax();
+    //识别节拍
+    int beat_3 = 0;
+    int beat_2 = 0;
+    for(auto it:midiMap.notes){
+        if(strstr(it->info.c_str(), buf_chordChannel) != NULL){
+            int beatNum = round(it->delay/midiMap.TPQ);
+            if(beatNum%3==0){
+                ++beat_3;
+            }else if(beatNum%2==0){
+                ++beat_2;
+            }
+        }
+    }
+    if(beat_3>beat_2){
+        printf("识别为三拍子，暂不支持处理\n");
+        return 1;
+    }
     
     std::cout<<"调性概率:"<<std::endl;
     midiMap.getBaseTone();
