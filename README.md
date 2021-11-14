@@ -5,4 +5,5 @@
 ### 使用：
 `./midi-samlper 输入midi文件 输出文本文件 旋律音轨 和弦音轨`
 如
-`./midi-samlper 1.mid 1.txt 1 2`
+`./midi-samlper 1.mid 1.txt 1 2`  
+批量处理：`find ./MIDI/ -name *.mid -exec ./midi-sampler {} sampled.txt 0 1 \;`

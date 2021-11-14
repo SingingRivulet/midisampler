@@ -53,12 +53,12 @@ int main(int argc, char** argv){
     std::vector<std::set<int> > chords;
     char channel_note[64];
     char channel_chord[64];
-    for(int i=0;i<lenInBeat;i=i+4){
-        chords.push_back(mgnr::sampleChord(midiMap,i,4,midiMap.baseTone,[&](mgnr::note * n){
+    for(int i=0;i<lenInBeat;i=i+1){
+        chords.push_back(mgnr::sampleChord(midiMap,i,1,midiMap.baseTone,[&](mgnr::note * n){
             return (strstr(n->info.c_str(), buf_chordChannel) != NULL);
         }));
-        for(int j=0;j<8;++j){
-            notes.push_back(mgnr::sample(midiMap,i+j*0.5,0.5,midiMap.baseTone,[&](mgnr::note * n){
+        for(int j=0;j<4;++j){
+            notes.push_back(mgnr::sample(midiMap,i+j*0.25,0.25,midiMap.baseTone,[&](mgnr::note * n){
                 return (strstr(n->info.c_str(), buf_noteChannel) != NULL);
             }));
         }

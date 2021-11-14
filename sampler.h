@@ -58,7 +58,7 @@ namespace mgnr{
     inline std::set<int> sampleChord(T & self,double beat,double len,int base,const std::function<bool(note*)> & filter){
         std::set<int> res;
         //std::cout<<"sampleChord"<<beat<<" "<<len<<std::endl;
-        fetch(self,beat+len/2,[&](note * n){
+        fetch(self,beat+len*0.3,[&](note * n){
             if(filter(n)){
                 int resval = n->tone-base;
                 res.insert(resval);
