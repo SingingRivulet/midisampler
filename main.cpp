@@ -7,13 +7,14 @@ int main(int argc, char** argv){
         return 0;
     }
     std::string input = argv[1];
-    std::string output = argv[2];
+    std::string output_ori = std::string(argv[2])+".ori.txt";
+    std::string output_maj = std::string(argv[2])+".maj.txt";
+    std::string output_min = std::string(argv[2])+".min.txt";
     
     int noteChannel = atoi(argv[3]);
     int chordChannel = atoi(argv[4]);
     
     std::cout<<"输入:"<<input<<std::endl;
-    std::cout<<"输出:"<<output<<std::endl;
     std::cout<<"旋律音轨:"<<noteChannel<<std::endl;
     std::cout<<"和弦音轨:"<<chordChannel<<std::endl;
 
@@ -46,7 +47,11 @@ int main(int argc, char** argv){
     std::cout<<"调性概率:"<<std::endl;
     midiMap.getBaseTone();
 
-    std::cout<<"调性:"<<midiMap.baseTone<<std::endl;
+    std::cout<<"调性:"<<midiMap.baseTone;
+    if(!midiMap.isMajor){
+        std::cout<<"（小调）";
+    }
+    std::cout<<std::endl;
 
     int lenInBeat = (midiMap.noteTimeMax/midiMap.TPQ);
     std::vector<int> notes;
@@ -63,7 +68,7 @@ int main(int argc, char** argv){
             }));
         }
     }
-    auto fp = fopen(output.c_str(),"a");
+    auto fp = fopen(midiMap.isMajor?output_maj.c_str():output_min.c_str(),"a");
     if(fp){
         fprintf(fp,"[");
         bool first = true;

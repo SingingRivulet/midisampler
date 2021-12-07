@@ -1,2 +1,9 @@
 *.o
 midi-sampler
+template
+model
+*.txt
+*.mid
+*.out
+*.exe
+*.zip

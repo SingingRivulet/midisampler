@@ -57,9 +57,9 @@ midiMap::~midiMap(){
 }
 static bool isNotHalfNote(int note,int base){
     const static bool l[] = {true,false,true,false,true,true,false,true,false,true,false,true};
-    return l[(note-base)%12];
+    return l[(note-base+12)%12];
 }
-static bool isMajor(int note){
+static bool checkMajor(int note){
     const static bool l[] = {true,false,false,false,true,false,false,true,false,false,false,false};
     return l[note%12];
 }
@@ -89,37 +89,46 @@ bool midiMap::updateTimeMax(){
     return false;
 }
 int midiMap::getBaseTone(){
-    std::tuple<int,double> major_prob[12];
-    for(int base=0;base<12;++base){
-        int note_count = 0;
+    int single_note_count[12];//记录每个音符出现次数
+    for(int i=0;i<12;++i){
+        single_note_count[i] = 0;
+    }
+    int note_count = 0;
+    for (auto note:notes) {
+        note_count += note->delay;
+        single_note_count[(((int)note->tone)+12)%12] += note->delay;
+    }
+    std::tuple<int, float> major_prob[12];
+    for (int base = 0; base < 12; ++base) {
         int nh_count = 0;
-        for(auto note:notes){
-            ++note_count;
-            if(isNotHalfNote(note->tone , base)){
-                ++nh_count;
+        for(int i=0;i<12;++i){
+            if (isNotHalfNote(i, base)) {
+                nh_count += single_note_count[i];
             }
         }
-        if(note_count==0){
-            major_prob[base]=std::make_tuple(base,0);
-        }else{
-            major_prob[base]=std::make_tuple(base,((double)nh_count)/((double)note_count));
+        if (note_count == 0) {
+            major_prob[base] = std::make_tuple(base, 0);
+        } else {
+            major_prob[base] = std::make_tuple(base, ((float) nh_count) / ((float) note_count));
         }
     }
-    std::sort(major_prob,major_prob+12,[](const std::tuple<int,double>& x,const std::tuple<int,double>& y){
-        return std::get<1>(x)>std::get<1>(y);
-    });
-    for(auto it:major_prob){
-        printf("%d %f\n",std::get<0>(it),std::get<1>(it));
-    }
-    if(isMajor(std::get<1>(major_prob[0]))){
+    std::sort(major_prob, major_prob + 12,
+              [](const std::tuple<int, float> &x, const std::tuple<int, float> &y) {
+                  return std::get<1>(x) > std::get<1>(y);
+              });
+    if (checkMajor(std::get<1>(major_prob[0]))) {
         baseTone = std::get<0>(major_prob[0]);
-    }else{
-        if(std::get<1>(major_prob[1])==std::get<1>(major_prob[0])){
+    } else {
+        if (std::get<1>(major_prob[1]) == std::get<1>(major_prob[0])) {
             baseTone = std::get<0>(major_prob[1]);
-        }else{
+        } else {
             baseTone = std::get<0>(major_prob[0]);
         }
     }
+    //识别大小调
+    int num_do = single_note_count[baseTone];
+    int num_la = single_note_count[(baseTone+9)%12];
+    isMajor = (num_do>num_la);
     return baseTone;
 }
 note * midiMap::addNote(double position,double tone,double delay,int v,const std::string & info){

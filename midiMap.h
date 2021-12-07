@@ -37,6 +37,7 @@ namespace mgnr{
             int TPQ;
             double XShift;
             int baseTone;
+            bool isMajor;
             
             double sectionLen;//小节线
             int section;
