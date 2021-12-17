@@ -67,7 +67,7 @@ int main(){
     int index=0;
     auto fp = fopen("note-chord.txt","r");
     auto out = fopen("note-chord-crf.txt","w");
-    mgnr::chordMap m;
+    mgnr::melody2chord::chordMap m;
     if(fp){
         while (!feof(fp) && index<150){
             bzero(buf_line,sizeof(buf_line));
@@ -84,14 +84,16 @@ int main(){
                 iss>>note;
                 notes.push_back(note);
             }
-            auto melody = mgnr::noteSeq2Chord(m,notes);
+            auto melody = mgnr::melody2chord::note2Chord(m,notes);
             int melody_note = std::get<0>(melody);
-            fprintf(out,"%s %s ",melody_note<=0?"0":noteMap[melody_note%12],std::get<1>(melody).c_str());
+            fprintf(out,"%s %s %f ",melody_note<=0?"0":noteMap[melody_note%12],std::get<1>(melody).c_str(),std::get<3>(melody));
             std::string chord,section;
 
             iss>>chord;
             iss>>section;
-            
+            for(auto it:notes){
+                fprintf(out,"%d ",it);
+            }
             fprintf(out,"%s ",section.c_str());
             fprintf(out,"%s\n",chord.c_str());
         }

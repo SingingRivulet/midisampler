@@ -18,6 +18,13 @@ inline bool checkMajor(int note){
 }
 const char * noteMap[] = {"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
 const char * numberNoteMap[] = {"1","1#","2","2#","3","4","4#","5","5#","6","6#","7"};
+int getToneDelta(int a,int b){
+    if(a>b){
+        return std::min(a-b,b+12-a);
+    }else{
+        return std::min(b-a,a+12-b);
+    }
+}
 int getBaseTone(const std::vector<int> & notes,bool chordMode = true){
     int single_note_count[12];//记录每个音符出现次数
     for(int i=0;i<12;++i){
@@ -40,9 +47,11 @@ int getBaseTone(const std::vector<int> & notes,bool chordMode = true){
     std::tuple<int, float> major_prob[12];
     for (int base = 0; base < 12; ++base) {
         int nh_count = 0;
-        for(int i=0;i<12;++i){
-            if (isNotHalfNote(i, base)) {
-                nh_count += single_note_count[i];
+        if(single_note_count[base]!=0){
+            for(int i=0;i<12;++i){
+                if (isNotHalfNote(i, base)) {
+                    nh_count += single_note_count[i];
+                }
             }
         }
         if (note_count == 0) {
@@ -86,57 +95,42 @@ int getBaseTone(const std::vector<int> & notes,bool chordMode = true){
                 break;
             }
         }
+        if(equalProbNum==2){
+            int delta = getToneDelta(std::get<0>(major_prob[0]),std::get<0>(major_prob[1]));
+            printf("发现两种可能性的音高差距:%d\n",delta);
+        }
         //统计4和7
-        std::vector<std::tuple<int,int,int,int,int,int> > relatuve_note_count;//{{调性,4个数,7个数,最大值,起始值,结束值},...}
+        std::vector<std::tuple<int,int,int,int,int,int,int> > relatuve_note_count;//{{调性,1个数,4个数,7个数,最大值,起始值,结束值},...}
         for(int i=0;i<equalProbNum;++i){
+            int count_1 = single_note_count[(std::get<0>(major_prob[i])+0)%12]; //1
             int count_4 = single_note_count[(std::get<0>(major_prob[i])+5)%12]; //4
             int count_7 = single_note_count[(std::get<0>(major_prob[i])+11)%12];//7
             int tone = std::get<0>(major_prob[i]);
             relatuve_note_count.push_back(
                 std::make_tuple(
                     tone,
+                    count_1,
                     count_4,
                     count_7,
-                    std::max(count_4,count_7),
+                    std::max(std::max(count_1,count_4),count_7),
                     (note_begin-tone+12)%12,
                     (note_end-tone+12)%12
                 )
             );
         }
         std::sort(relatuve_note_count.begin(), relatuve_note_count.end(),
-            [&](const std::tuple<int,int,int,int,int,int> &x, std::tuple<int,int,int,int,int,int> &y) {
-                if(chordMode){
-                    int major_x = 0;
-                    int major_y = 0;
-                    if(std::get<4>(x)==0 || std::get<4>(x)==7 || std::get<4>(x)==9){
-                        ++major_x;
-                    }
-                    if(std::get<5>(x)==0 || std::get<5>(x)==7 || std::get<5>(x)==9){
-                        ++major_x;
-                    }
-                    if(std::get<4>(y)==0 || std::get<4>(y)==7 || std::get<4>(y)==9){
-                        ++major_y;
-                    }
-                    if(std::get<5>(y)==0 || std::get<5>(y)==7 || std::get<5>(y)==9){
-                        ++major_y;
-                    }
-                    if(major_x>major_y){
-                        return true;
-                    }
-                    if(major_x<major_y){
-                        return false;
-                    }
-                }
-                return std::get<3>(x) > std::get<3>(y);
+            [&](const std::tuple<int,int,int,int,int,int,int> &x, std::tuple<int,int,int,int,int,int,int> &y) {
+                return std::get<4>(x) > std::get<4>(y);
         });
         for(auto it:relatuve_note_count){
             printf(
-                "假如为%s调，4个数:%d，7个数%d，开头：%s,结尾：%s\n",
+                "假如为%s调，1个数:%d，4个数:%d，7个数%d，开头：%s,结尾：%s\n",
                 noteMap[std::get<0>(it)],
                 std::get<1>(it),
                 std::get<2>(it),
-                numberNoteMap[std::get<4>(it)],
-                numberNoteMap[std::get<5>(it)]);
+                std::get<3>(it),
+                numberNoteMap[std::get<5>(it)],
+                numberNoteMap[std::get<6>(it)]);
         }
         baseTone = std::get<0>(relatuve_note_count.at(0));
     }else{

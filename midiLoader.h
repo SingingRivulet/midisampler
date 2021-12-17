@@ -4,6 +4,7 @@
 #include "Options.h"
 #include <iostream>
 #include <map>
+#include <set>
 #include <string>
 #include <type_traits>
 namespace mgnr{
