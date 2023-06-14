@@ -2,8 +2,8 @@
 #define MGNR_MELODY2CHORD
 #include <string.h>
 #include <functional>
-#include <map>
 #include <list>
+#include <map>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -32,7 +32,31 @@ inline void getComp(                                                            
         callback(res, sum - compCount);
     }
 }
-float calcEditDist(const std::vector<std::tuple<int, float>>& A, const std::vector<int>& B, float act = 1.0) {
+template<typename T>
+inline int calcEditDist(const T & s1, const T & s2) {
+    int m = s1.size();
+    int n = s2.size();
+    std::vector<std::vector<int>> dp(m + 1, std::vector<int>(n + 1));
+    for (int i = 1; i <= m; i++) {  //<=说明遍历的次数是m-1+1次，即字符串的长度
+        dp[i][0] = i;
+    }
+    for (int j = 1; j <= n; j++) {
+        dp[0][j] = j;
+    }
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            //if (s1[i] == s2[j])//运行结果不对，因为第i个字符的索引为i-1
+            if (s1[i - 1] == s2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];  //第i行j列的步骤数等于第i-1行j-1列，因为字符相同不需什么操作，所以不用+1
+            } else {
+                dp[i][j] = std::min(std::min(dp[i - 1][j] + 1, dp[i][j - 1] + 1), dp[i - 1][j - 1] + 1);  //+1表示经过了一次操作
+            }
+        }
+    }
+    return dp[m][n];
+}
+
+inline float calcEditDist(const std::vector<std::tuple<int, float>>& A, const std::vector<int>& B, float act = 1.0) {
     int lenA = A.size();
     int lenB = B.size();
     int i, j;
@@ -118,8 +142,8 @@ inline std::vector<int> getChordArray(const std::vector<const char*>& arr) {
     return res;
 }
 
-template<typename T> //要求必须有chord_map成员
-concept chord_map_c = requires(T a){
+template <typename T>  //要求必须有chord_map成员
+concept chord_map_c = requires(T a) {
     a.chord_map;
 };
 
@@ -138,43 +162,69 @@ struct chordMap {
     }
     inline chordMap() {
         //addChord("single",  {"0"});
-        addChord("M3",      {"1", "3",  "5"});
-        addChord("m3",      {"1", "b3", "5"});
-        addChord("-5",      {"1", "3",  "b5"});
-        addChord("ang",     {"1", "3",  "#5"});
-        addChord("dim",     {"1", "b3", "b5", "6"});
-        addChord("sus",     {"1", "4",  "5"});
-        addChord("6",       {"1", "3",  "5",  "6"});
-        addChord("m6",      {"1", "b3", "5",  "6"});
-        addChord("7",       {"1", "3",  "5",  "b7"});
-        addChord("maj7",    {"1", "3",  "5",  "7"});
-        addChord("m7",      {"1", "b3", "5",  "b7"});
-        addChord("m#7",     {"1", "b3", "5",  "7"});
-        addChord("7+5",     {"1", "3",  "#5", "b7"});
-        addChord("7-5",     {"1", "3",  "b5", "b7"});
-        addChord("m7-5",    {"1", "b3", "b5", "b7"});
-        addChord("7sus4",   {"1", "3",  "5",  "b7", "4"});
-        addChord("7/6",     {"1", "3",  "5",  "b7", "6"});
-        addChord("maj9",    {"1", "3",  "5",  "7",  "2"});
-        addChord("9",       {"1", "3",  "5",  "b7", "2"});
-        addChord("9+5",     {"1", "3",  "#5", "b7", "2"});
-        addChord("9-5",     {"1", "3",  "b5", "b7", "2"});
-        addChord("m9",      {"1", "b3", "5",  "b7", "2"});
-        addChord("7+9",     {"1", "3",  "5",  "b7", "#2"});
-        addChord("m9#7",    {"1", "b3", "5",  "b7", "2"});
-        addChord("7b9",     {"1", "3",  "5",  "b7", "b2"});
-        addChord("7-9+5",   {"1", "3",  "#5", "b7", "b2"});
-        addChord("7-9-5",   {"1", "3",  "b5", "b7", "b2"});
-        addChord("69",      {"1", "3",  "5",  "6",  "2"});
-        addChord("m69",     {"1", "b3", "5",  "6",  "2"});
-        addChord("11",      {"1", "3",  "5",  "b7", "2",  "4"});
-        addChord("m11",     {"1", "b3", "5",  "b7", "2",  "4"});
-        addChord("11+",     {"1", "3",  "5",  "b7", "2",  "#4"});
-        addChord("13",      {"1", "3",  "5",  "b7", "2",  "4", "6"});
-        addChord("13-9",    {"1", "3",  "5",  "b7", "b2", "4", "6"});
-        addChord("13-9-5",  {"1", "3",  "b5", "b7", "b2", "4", "6"});
+        addChord("M3", {"1", "3", "5"});
+        addChord("m3", {"1", "b3", "5"});
+        addChord("-5", {"1", "3", "b5"});
+        addChord("ang", {"1", "3", "#5"});
+        addChord("dim", {"1", "b3", "b5", "6"});
+        addChord("sus", {"1", "4", "5"});
+        addChord("6", {"1", "3", "5", "6"});
+        addChord("m6", {"1", "b3", "5", "6"});
+        addChord("7", {"1", "3", "5", "b7"});
+        addChord("maj7", {"1", "3", "5", "7"});
+        addChord("m7", {"1", "b3", "5", "b7"});
+        addChord("m#7", {"1", "b3", "5", "7"});
+        addChord("7+5", {"1", "3", "#5", "b7"});
+        addChord("7-5", {"1", "3", "b5", "b7"});
+        addChord("m7-5", {"1", "b3", "b5", "b7"});
+        addChord("7sus4", {"1", "3", "5", "b7", "4"});
+        addChord("7/6", {"1", "3", "5", "b7", "6"});
+        addChord("maj9", {"1", "3", "5", "7", "2"});
+        addChord("9", {"1", "3", "5", "b7", "2"});
+        addChord("9+5", {"1", "3", "#5", "b7", "2"});
+        addChord("9-5", {"1", "3", "b5", "b7", "2"});
+        addChord("m9", {"1", "b3", "5", "b7", "2"});
+        addChord("7+9", {"1", "3", "5", "b7", "#2"});
+        addChord("m9#7", {"1", "b3", "5", "b7", "2"});
+        addChord("7b9", {"1", "3", "5", "b7", "b2"});
+        addChord("7-9+5", {"1", "3", "#5", "b7", "b2"});
+        addChord("7-9-5", {"1", "3", "b5", "b7", "b2"});
+        addChord("69", {"1", "3", "5", "6", "2"});
+        addChord("m69", {"1", "b3", "5", "6", "2"});
+        addChord("11", {"1", "3", "5", "b7", "2", "4"});
+        addChord("m11", {"1", "b3", "5", "b7", "2", "4"});
+        addChord("11+", {"1", "3", "5", "b7", "2", "#4"});
+        addChord("13", {"1", "3", "5", "b7", "2", "4", "6"});
+        addChord("13-9", {"1", "3", "5", "b7", "b2", "4", "6"});
+        addChord("13-9-5", {"1", "3", "b5", "b7", "b2", "4", "6"});
     }
 };
+
+template <chord_map_c T>
+bool inChordMap(const T& self, std::vector<int>& chord) {
+    bool first = true;
+    int start = 0;
+    std::vector<int> relativeChord;
+    for (auto it : chord) {
+        if (first) {
+            start = it;
+        }
+        relativeChord.push_back(it - start);
+        first = false;
+    }
+#ifdef MGNR_DEBUG
+    for (auto it : relativeChord) {
+        printf("%d ", it);
+    }
+    printf("\n");
+#endif
+    for (auto it : self.chord_map) {
+        if (it.second == relativeChord) {
+            return true;
+        }
+    }
+    return false;
+}
 
 template <chord_map_c T>
 inline std::tuple<int, std::string, float> note2Chord(const T& self, const std::vector<std::tuple<int, float>>& notes, float act = 1.0) {
@@ -218,11 +268,11 @@ inline std::tuple<int, std::string, float> note2Chord(const T& self, const std::
 }
 
 template <chord_map_c T>
-inline std::tuple<int, std::string, std::vector<int>, float> note2Chord(const T& self, const std::vector<int>& seq, float act = 0.5) {
+inline std::tuple<int, std::string, std::vector<int>, float> note2Chord(const T& self, const std::vector<int>& seq, float act = 0.5, int times = 1) {
     std::map<int, int> count;
     for (auto it : seq) {
         if (it > 0) {
-            ++count[it];
+            count[it] += times;
         }
     }
     std::vector<std::tuple<int, float>> noteset;
@@ -242,28 +292,28 @@ struct musicSection_t {
 };
 
 template <chord_map_c T>
-void initMusicSection(const T& self, musicSection_t& res, float act = 1.0) {
-    auto chord = note2Chord(self, res.melody, act);
+void initMusicSection(const T& self, musicSection_t& res, float act = 1.0, int times = 1) {
+    auto chord = note2Chord(self, res.melody, act, times);
     res.chord_base = std::get<0>(chord);
     res.chord_name = std::get<1>(chord);
     res.weight = std::get<3>(chord);
 }
 
 template <chord_map_c T>
-musicSection_t buildMusicSection(const T& self, const std::vector<int>& melody, float act = 1.0) {
+musicSection_t buildMusicSection(const T& self, const std::vector<int>& melody, float act = 1.0, int times = 1) {
     musicSection_t res;
     res.melody = melody;
-    initMusicSection(self, res, act);
+    initMusicSection(self, res, act, times);
     return res;
 }
 
 template <chord_map_c T>
-musicSection_t merge(const T& self, const musicSection_t& A, const musicSection_t& B, float act = 1.0) {
+musicSection_t merge(const T& self, const musicSection_t& A, const musicSection_t& B, float act = 1.0, int times = 1) {
     musicSection_t res = A;
     for (auto it : B.melody) {
         res.melody.push_back(it);
     }
-    initMusicSection(self, res, act);
+    initMusicSection(self, res, act, times);
     return res;
 }
 
@@ -272,7 +322,8 @@ inline void getMusicSection(
     const chord_map_t& chord_map,
     musicSection_list& musicSection,
     float act = 0.5,
-    float sectionWeight = 1.0) {
+    float sectionWeight = 1.0,
+    int times = 1) {
     auto it = musicSection.begin();
     while (it != musicSection.end()) {
         auto next_it = it;
@@ -281,10 +332,10 @@ inline void getMusicSection(
             //存在下一个，检测合并
             auto& now = *it;
             auto& next = *next_it;
-            auto merged = merge(chord_map, now, next, act);
+            auto merged = merge(chord_map, now, next, act, times);
             float nowWeight = now.weight + next.weight + sectionWeight;
 #ifdef MGNR_DEBUG
-            printf("nowWeight=%f mergeWeight=%f\n",nowWeight,merged.weight);
+            printf("nowWeight=%f mergeWeight=%f\n", nowWeight, merged.weight);
 #endif
             if (nowWeight >= merged.weight) {
                 //确认合并
@@ -305,21 +356,44 @@ inline std::list<musicSection_t> getMusicSection(
     std::vector<int>& melody,
     int minSectionNum,
     float act = 0.5,
-    float sectionWeight = 1.0) {
+    float sectionWeight = 1.0,
+    int times = 1) {
     std::list<musicSection_t> arr;
     std::vector<int> tmp;
     for (auto it : melody) {
         if (tmp.size() >= minSectionNum) {
-            arr.push_back(std::move(buildMusicSection(chord_map, tmp, act)));
+            arr.push_back(std::move(buildMusicSection(chord_map, tmp, act, times)));
             tmp.clear();
         }
         tmp.push_back(it);
     }
     if (!tmp.empty()) {
-        arr.push_back(std::move(buildMusicSection(chord_map, tmp, act)));
+        arr.push_back(std::move(buildMusicSection(chord_map, tmp, act, times)));
     }
     getMusicSection(chord_map, arr, act, sectionWeight);
     return arr;
+}
+
+inline int getToneLevel(int note) {
+    if (note <= 0) {
+        return 0;
+    }
+    const static int levelList[] = {2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14};
+    return levelList[note % 12] + (note / 12) * 14;
+}
+
+inline int getToneLevel(int note, int baseTone) {
+    if (note <= 0) {
+        return 0;
+    }
+    return getToneLevel(note - baseTone);
+}
+
+inline int getToneLevelDelta(int A, int B, int baseTone) {
+    if (A <= 0 || B <= 0) {
+        return -65535;
+    }
+    return getToneLevel(A, baseTone) - getToneLevel(B, baseTone);
 }
 
 }  // namespace mgnr::melody2chord

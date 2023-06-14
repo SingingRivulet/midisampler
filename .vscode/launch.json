@@ -9,7 +9,7 @@
       "stopAtEntry": false,
       "cwd": "/home/ubuntu/project/midisampler",
       "environment": [],
-      "program": "/home/ubuntu/project/midisampler/tool/a.out",
+      "program": "/home/ubuntu/project/midisampler/tool/dataSplit",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "miDebuggerPath": "/usr/bin/gdb",

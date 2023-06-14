@@ -33,6 +33,8 @@ namespace mgnr{
             std::map<noteIndex,note*> timeIndex;
             
             std::map<int,double> timeMap;
+
+            std::multimap<int,std::tuple<std::string,int>> metaContent;
             
             int TPQ;
             double XShift;
