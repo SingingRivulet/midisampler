@@ -1,6 +1,6 @@
 CC = g++ -std=c++11 -Os
 
-midi-sampler:main.cpp midiLoader.h hbb.o midiMap.o MidiEventList.o MidiEvent.o MidiMessage.o Options.o MidiFile.o Binasc.o offline.o
+midi-sampler:main.cpp midiLoader.h hbb.o midiMap.o MidiEventList.o MidiEvent.o MidiMessage.o Options.o MidiFile.o Binasc.o
 	$(CC) main.cpp \
 	hbb.o \
 	midiMap.o \
@@ -9,11 +9,10 @@ midi-sampler:main.cpp midiLoader.h hbb.o midiMap.o MidiEventList.o MidiEvent.o M
 	MidiMessage.o \
 	Options.o \
 	MidiFile.o \
-	offline.o \
 	Binasc.o -static -o midi-sampler
 
 offline.o:offline.cpp offline.h
-    $(CC) offline.cpp -c
+	$(CC) offline.cpp -c
 
 hbb.o:hbb.h hbb.cpp mempool.h
 	$(CC) hbb.cpp -c

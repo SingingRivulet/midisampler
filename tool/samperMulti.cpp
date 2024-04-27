@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
             snprintf(buf_noteTrack, sizeof(buf_noteTrack), ".%d", ch.first);
             //std::cout << it->info << " " << buf_noteTrack;
             if (strstr(it->info.c_str(), buf_noteTrack) != NULL) {
-                ch.second += it->delay;
+                ch.second += it->duration;
                 //std::cout << " " << ch.second << " 选中";
             }
             //std::cout << std::endl;

@@ -33,11 +33,12 @@ namespace mgnr{
         public:
             double begin;
             double tone;
-            double delay;
+            double duration;
             int volume;
             int id;
             int startId;
             int endId;
+            int ins_id;
             
             std::string info;
             
@@ -57,7 +58,7 @@ namespace mgnr{
                 beginIndex = noteIndex(begin,startId);
             }
             inline void getEndIndex(){
-                endIndex = noteIndex(begin+delay,endId);
+                endIndex = noteIndex(begin+duration,endId);
             }
             
             void * indexer;

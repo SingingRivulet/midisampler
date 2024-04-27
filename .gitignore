@@ -8,3 +8,4 @@ model
 *.exe
 *.zip
 *.xlsx
+.vscode/*

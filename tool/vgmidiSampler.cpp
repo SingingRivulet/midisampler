@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     int beat_2 = 0;
     for (auto it : midiMap.notes) {
         if (strstr(it->info.c_str(), buf_chordChannel) != NULL) {
-            int beatNum = round(it->delay / midiMap.TPQ);
+            int beatNum = round(it->duration / midiMap.TPQ);
             if (beatNum % 3 == 0) {
                 ++beat_3;
             } else if (beatNum % 2 == 0) {
@@ -103,13 +103,13 @@ int main(int argc, char** argv) {
             //++numChord;
             notes.push_back(mgnr::sample(midiMap, i + j * 0.25, 0.25, basetone, [&](mgnr::note* n) {
                 //return n->info == noteTrack;
-                return (strstr(n->info.c_str(), ".0") != NULL);
+                return (strstr(n->info.c_str(), ".1") != NULL);
             }));
             ++numNote;
         }
         chords.push_back(mgnr::sampleChord(midiMap, i, 1, basetone, [&](mgnr::note* n) {
             //return n->info != noteTrack;
-            return (strstr(n->info.c_str(), ".1") != NULL);
+            return (strstr(n->info.c_str(), ".2") != NULL);
         }));
         ++numChord;
     }

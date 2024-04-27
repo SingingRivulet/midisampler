@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     int beat_2 = 0;
     for (auto it : midiMap.notes) {
         if (strstr(it->info.c_str(), buf_chordChannel) != NULL) {
-            int beatNum = round(it->delay / midiMap.TPQ);
+            int beatNum = round(it->duration / midiMap.TPQ);
             if (beatNum % 3 == 0) {
                 ++beat_3;
             } else if (beatNum % 2 == 0) {
@@ -77,8 +77,8 @@ int main(int argc, char** argv) {
         chords.push_back(mgnr::sampleChord(midiMap, i, 1, basetone, [&](mgnr::note* n) {
             auto res = (strstr(n->info.c_str(), buf_chordChannel) != NULL);
             if (res) {
-                if (n->delay < midiMap.TPQ) {
-                    std::cout << "长度过短：len=" << n->delay << " TPQ=" << midiMap.TPQ << std::endl;
+                if (n->duration < midiMap.TPQ) {
+                    std::cout << "长度过短：len=" << n->duration << " TPQ=" << midiMap.TPQ << std::endl;
                     processError = true;
                 }
             }

@@ -17,7 +17,7 @@ namespace mgnr{
         public:
             midiMap();
             ~midiMap();
-            note * addNote(double position,double tone,double delay,int v,const std::string & info);
+            note * addNote(double position,double tone,double duration,int v,const std::string & info,int ins_id=0);
             void removeNote(note * p);
             void resizeNote(note * p);
             

@@ -69,7 +69,7 @@ bool midiMap::updateTimeMax(){
         noteToneMin = 255;
         noteToneMax = 0;
         for(auto & it:notes){
-            double tm = it->begin + it->delay;
+            double tm = it->begin + it->duration;
             if(tm>noteTimeMax){
                 noteTimeMax = tm;
             }
@@ -95,8 +95,8 @@ int midiMap::getBaseTone(){
     }
     int note_count = 0;
     for (auto note:notes) {
-        note_count += note->delay;
-        single_note_count[(((int)note->tone)+12)%12] += note->delay;
+        note_count += note->duration;
+        single_note_count[(((int)note->tone)+12)%12] += note->duration;
     }
     std::tuple<int, float> major_prob[12];
     for (int base = 0; base < 12; ++base) {
@@ -131,12 +131,12 @@ int midiMap::getBaseTone(){
     isMajor = (num_do>num_la);
     return baseTone;
 }
-note * midiMap::addNote(double position,double tone,double delay,int v,const std::string & info){
+note * midiMap::addNote(double position,double tone,double duration,int v,const std::string & info,int ins_id){
     HBB::vec from;
     HBB::vec to;
     from.set(position , tone);
     to = from;
-    to.X += delay;
+    to.X += duration;
     to.Y += 0.9;
     
     auto p  = ((npool*)pool)->get();
@@ -147,10 +147,11 @@ note * midiMap::addNote(double position,double tone,double delay,int v,const std
     
     p->begin    = position;
     p->tone     = tone;
-    p->delay    = delay;
+    p->duration    = duration;
     p->volume   = v;
     p->info     = info;
-    
+    p->ins_id   = ins_id;
+
     p->getBeginIndex();
     p->getEndIndex();
 
@@ -184,7 +185,7 @@ void midiMap::resizeNote(note * p){
         HBB::vec to;
         from.set(p->begin , p->tone);
         to = from;
-        to.X += p->delay;
+        to.X += p->duration;
         to.Y += 0.9;
 
         timeIndex.erase(p->endIndex);
@@ -433,14 +434,14 @@ int midiMap::getAreaNote(double begin,double len,const std::string & info,double
         }
         if(n->begin<self->begin){
             double delta = n->begin - self->begin;
-            double dur = n->delay+delta;
+            double dur = n->duration+delta;
             if(dur>=1){
                 self->tones.push_back(std::make_tuple(n->begin-delta , dur , n->tone));
                 self->sum+=dur;
             }
         }else{
-            self->tones.push_back(std::make_tuple(n->begin,n->delay,n->tone));
-            self->sum+=n->delay;
+            self->tones.push_back(std::make_tuple(n->begin,n->duration,n->tone));
+            self->sum+=n->duration;
         }
     },&self);
     
