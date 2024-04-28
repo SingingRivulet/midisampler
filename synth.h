@@ -1,7 +1,7 @@
 #ifndef MGNR_SYNTH
 #define MGNR_SYNTH
-#include "player.h"
-#include "lcs.h"
+// #include "player.h"
+// #include "lcs.h"
 #include <set>
 #include <list>
 #include <vector>
