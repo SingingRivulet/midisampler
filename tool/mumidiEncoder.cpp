@@ -103,6 +103,9 @@ int main(int argc, const char** argv) {
     mgnr::midiMap midiMap;
     mgnr::loadMidi(midiMap, input);
     midiMap.updateTimeMax();
+
+    assert(midiMap.TPQ>0);
+
     // 计算长度
     double lenInBeat = (midiMap.noteTimeMax / midiMap.TPQ);
     std::cout << "长度：" << lenInBeat << std::endl;
@@ -139,7 +142,7 @@ int main(int argc, const char** argv) {
     // 创建输出文件
     auto fp = fopen(output.c_str(), "w");
     if (fp) {
-        fprintf(fp, "<mumidi>\n  <events max=%d>\n", 128 + 36*4 + 36*8 + 5 + 60 + 128);
+        fprintf(fp, "<mumidi>\n  <events max=\"%d\">\n", 128 + 36*4 + 36*8 + 5 + 60 + 128);
         for (int index = 0; index < num_sample; ++index) {
             std::map<int, std::vector<mgnr::note*>> notes_bar{};
             double sample_beat = time_sig * index + time_offset;
@@ -159,7 +162,7 @@ int main(int argc, const char** argv) {
             double current_tempo = midiMap.getTempo(sample_tick);
             auto ev_token = get_token_bar(time_sig, current_tempo);
             token += ev_token + " ";
-            fprintf(fp, "    <bar time_sig=%d tempo=%lg token=\"%s\">\n", time_sig, current_tempo, ev_token.c_str());
+            fprintf(fp, "    <bar time_sig=\"%d\" tempo=\"%lg\" token=\"%s\">\n", time_sig, current_tempo, ev_token.c_str());
             
             token_seg_bar_num += 2;
             token_seg_bar += ev_token + " ";
@@ -167,7 +170,7 @@ int main(int argc, const char** argv) {
             for (auto& notes_group : notes_bar) {
                 ev_token = get_token_instrument(notes_group.first);
                 token += ev_token + " ";
-                fprintf(fp, "      <instrument id=%d token=\"%s\">\n", notes_group.first, ev_token.c_str());
+                fprintf(fp, "      <instrument id=\"%d\" token=\"%s\">\n", notes_group.first, ev_token.c_str());
 
                 token_seg_bar_num += 1;
                 token_seg_bar += ev_token + " ";
@@ -182,7 +185,7 @@ int main(int argc, const char** argv) {
                     double duration_beat = note->duration / midiMap.TPQ;
                     ev_token = get_token_note(delta_beat, duration_beat, note->tone);
                     token += ev_token + " ";
-                    fprintf(fp, "        <note time=%lg duration=%lg pitch=%lg token=\"%s\"/>\n", delta_beat, duration_beat, note->tone, ev_token.c_str());
+                    fprintf(fp, "        <note time=\"%lg\" duration=\"%lg\" pitch=\"%lg\" token=\"%s\"/>\n", delta_beat, duration_beat, note->tone, ev_token.c_str());
 
                     token_seg_bar_num += 3;
                     token_seg_bar += ev_token + " ";
@@ -204,7 +207,7 @@ int main(int argc, const char** argv) {
         }
         fprintf(fp, "  </events>\n  <tokens>\n    %s\n  </tokens>\n  <segs>\n", token.c_str());
         for (auto & it:token_segs){
-            fprintf(fp, "    <seg size=%d>\n      %s\n    </seg>\n", std::get<1>(it), std::get<0>(it).c_str());
+            fprintf(fp, "    <seg size=\"%d\">\n      %s\n    </seg>\n", std::get<1>(it), std::get<0>(it).c_str());
         }
         fprintf(fp, "  </segs>\n</mumidi>\n");
         fclose(fp);

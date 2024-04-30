@@ -178,8 +178,8 @@ inline void loadMidi(T& self, const std::string& str) {
                 instrumentId = midifile[track][event].getP1();
                 if (instrumentId < 0)
                     instrumentId = 0;
-                else if (instrumentId > 128)
-                    instrumentId = 128;
+                else if (instrumentId >= 128)
+                    instrumentId = 127;
             } else if (midifile[track][event].isMetaMessage()) {
                 int position = midifile[track][event].tick;
                 std::string content = midifile[track][event].getMetaContent();
